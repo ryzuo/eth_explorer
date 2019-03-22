@@ -37,8 +37,8 @@ def main():
 
     print(hex(1 << 7))
     print(hex(1 << 15))
-    print(hex(1 << 31))
-    print(hex(1 << 63))
+    print((1 << 31))
+    print((1 << 63))
 
 
 if __name__ == '__main__':
