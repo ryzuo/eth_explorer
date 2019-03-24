@@ -15,6 +15,7 @@ class HexString:
         self.__hex_hash = hex.lstrip(HEX_PREFIX)
         self.__supported_hex_width = [2, 4, 8, 16, 32, 64]
 
+    """
     def __set__(self, instance, value):
         if isinstance(value, int):
             self.__value = hex(value)
@@ -25,9 +26,14 @@ class HexString:
 
     def __get__(self, instance, value):
         return self.__value
+    """
 
     def __to_int(self, hexStr):
         return int(hexStr, self.__radix)
+
+    @property
+    def value(self):
+        return self.__value
 
     def split(self, width):
         result = list()
@@ -72,42 +78,53 @@ class HexString:
 
         return result
 
-    def toBigInt(self):
+    @property
+    def integer(self):
         return self.__to_int(self.__hex_hash)
 
-    def toDecimal(self):
+    def toDecimal(self, precision):
         bigint = int(self.__hex_hash, 16)
-        dec = Decimal(bigint)
+        print(bigint)
+        getcontext().prec = precision
+        dec = Decimal(bigint)/pow(10, precision)
+        print(dec)
         #dec.
 
-    def fromInt32Fields(self, int32_ls):
+    @staticmethod
+    def fromInt32Fields(int32_ls):
         hexRep = ""
         for int32 in int32_ls:
             int32Str = str(int32)
             int32Str = int32Str.zfill(INT32_DEC_WIDTH)
             hexRep += int32Str
-        self.__hex_hash = hex(int(hexRep))
-        return self.__hex_hash
+        return HexString(hex(int(hexRep)))
 
-    def fromInt64Fields(self, int64_ls):
+    @staticmethod
+    def fromInt64Fields(int64_ls):
         hexRep = ""
         for int64 in int64_ls:
             int64Str = str(int64)
             int64Str = int64Str.zfill(INT64_DEC_WIDTH)
             hexRep += int64Str
-        self.__hex_hash = hex(int(hexRep))
-        return self.__hex_hash
+        return HexString(hex(int(hexRep)))
+
+    @staticmethod
+    def fromInteger(number):
+        return HexString(hex(number))
 
 
 def main():
     hs = HexString("0xf71582CCFcd5fEA5Af8324B0F0Efe470D4d4Ec09")
+    #hs = HexString("0x535cd6a35508000")
     int64List = hs.splitToInt64()
-    int32List = hs.splitToInt32()
+    #int32List = hs.splitToInt32()
     print(int64List)
-    print(int32List)
+    #print(int32List)
 
-    print(hs.fromInt64Fields(int64List))
-    print(hs.fromInt32Fields(int32List))
+    #print(hs.fromInt64Fields(int64List))
+    #print(hs.fromInt32Fields(int32List))
+
+    hs.toDecimal(18)
 
 
 if __name__ == '__main__':

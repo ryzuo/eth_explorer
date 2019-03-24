@@ -1,44 +1,90 @@
 import json
-from time import time
 import http.client as httpclient
 import urllib.parse as urllibparse
 
-WEB3_HOST = '10.240.1.173'
+from time import time
+from tools import HashUtil
+
+from db.DBTables import *
+
+
+__all__ = ['getBlockHeight', 'getTransactionByHash']
+
+WEB3_HOST = '10.240.1.23'
+WEB3_PORT = 12170
+COMMON_HEADER = {
+    'Content-type': 'application/json; charset=UTF-8'
+}
+
+
+def __rpc_param_list(*args):
+    arg_list = list()
+    for arg in args:
+        arg_list.append(arg)
+    return arg_list
 
 
 def getBlockHeight():
     path = ''
-    headers = {
-        'Content-type': 'application/json'
-    }
     params = {
         "method": "eth_blockNumber",
         "id": time(),
-        "params": "[]"
+        "params": []
     }
 
     body = json.dumps(params).encode()
-    conn = httpclient.HTTPConnection(host=WEB3_HOST, port=12180)
-    conn.request("POST", path, body, headers)
+    conn = httpclient.HTTPConnection(host=WEB3_HOST, port=WEB3_PORT)
+    conn.request("POST", path, body, COMMON_HEADER)
     response = conn.getresponse()
     respText = json.loads(response.read().decode('utf-8'))
     hexResult = respText.get('result')
     height = int(hexResult, 16)
-    print(hexResult)
-    print(height)
+    return height
+
+
+def getBlockByNumber(number):
+    params = {
+        "method": "eth_getBlockByNumber",
+        "id": time(),
+        "params": __rpc_param_list(HashUtil.HexString.fromInteger(number).value, True)
+    }
+
+    body = json.dumps(params).encode()
+    conn = httpclient.HTTPConnection(host=WEB3_HOST, port=WEB3_PORT)
+    conn.request(method="POST", url="", body=body, headers=COMMON_HEADER)
+    response = conn.getresponse()
+    respText = json.loads(response.read().decode("utf-8"))
+    result = respText.get("result")
+    if result is not None:
+        transactions = result.get("transactions")
+        for tx in transactions:
+            print(tx)
+
+
+def getTransactionByHash(tx_hash):
+    params = {
+        "method": "eth_getTransactionByHash",
+        "id": time(),
+        "params": __rpc_param_list(tx_hash)
+    }
+
+    body = json.dumps(params).encode()
+    conn = httpclient.HTTPConnection(host=WEB3_HOST, port=WEB3_PORT)
+    conn.request(method="POST", url="", body=body, headers=COMMON_HEADER)
+    response = conn.getresponse()
+    respText = json.loads(response.read().decode('utf-8'))
+    result = respText.get('result')
+    if result is not None:
+        print(result)
 
 
 def main():
-    #getBlockHeight()
+    #print(getBlockHeight())
     val1 = int("0xf71582CCFcd5fEA5Af8324B0F0Efe470D4d4Ec09", 16)
     val2 = int("0x01932bb02343073691f2d85789fb2ceab883a98efab8c5ab29cf3dbfaa328e26", 16)
-    print('length of ', val1, 'is ', len(str(val1)), ', number of bit is ', val1.bit_length())
-    print('length of ', val2, 'is ', len(str(val2)), ', number of bit is ', val2.bit_length())
 
-    print(hex(1 << 7))
-    print(hex(1 << 15))
-    print((1 << 31))
-    print((1 << 63))
+    #getTransactionByHash("0xf595c930b016d533933f14c1d949248d8fabac9bfbb6c664a833c59dc08527a9")
+    getBlockByNumber(7425816)
 
 
 if __name__ == '__main__':

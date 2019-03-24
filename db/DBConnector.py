@@ -24,12 +24,7 @@ def getSession(host, database, user, password):
 
 
 def main():
-    # connection = getConnection("222.73.149.186", "walletnowx", "walletnow", "2bSXaBN%GTicy")
-    seed = '86' + '13354282961'
-    hash_key = md5()
-    hash_key.update(seed.encode('utf-8'))
-    otpScret = hash_key.hexdigest()
-    print(otpScret)
+    connection = getConnection("10.0.0.17", "walletnowx", "walletnow", "2bSXaBN%GTicy")
 
 
 if __name__ == '__main__':
